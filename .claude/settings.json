@@ -8,6 +8,14 @@
             "command": "bash -c 'cd /home/user/vibed-nix && ./install-nix.sh && NIX_BIN=$(find /nix/store -path \"*/nix-*/bin\" -type d | sort -r | head -1) && echo \"export PATH=\\\"$NIX_BIN:\\$PATH\\\"\" >> \"$CLAUDE_ENV_FILE\"'"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd /home/user/vibed-nix && NIX_BIN=$(find /nix/store -path \"*/nix-*/bin\" -type d | sort -r | head -1) && if [ -d \"$NIX_BIN\" ]; then eval \"$($NIX_BIN/nix print-dev-env --profile /tmp/nix-shell-profile)\" && echo \"source /tmp/nix-shell-profile/dev-env\" >> \"$CLAUDE_ENV_FILE\"; fi'"
+          }
+        ]
       }
     ]
   }
