@@ -49,7 +49,7 @@ export NIX_CONF_DIR="$HOME/.config/nix"
 echo "Nix version: $(nix --version)"
 
 # Persist Nix environment to CLAUDE_ENV_FILE
-if [ -n "$CLAUDE_ENV_FILE" ]; then
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     # Add Nix to PATH
     NIX_BIN_DIR=$(dirname "$(command -v nix)")
     echo "export PATH=\"$NIX_BIN_DIR:\$PATH\"" >> "$CLAUDE_ENV_FILE"
@@ -72,5 +72,33 @@ if [ -n "$CLAUDE_ENV_FILE" ]; then
     echo "Environment variables persisted to $CLAUDE_ENV_FILE"
 fi
 
-echo "✓ Nix is available! Use 'nix develop' to enter the dev shell."
+# Set up automatic nix develop entry
+echo "Setting up automatic nix develop entry..."
+mkdir -p ~/.config/claude-code
+cat > ~/.config/claude-code/nix-auto-enter.sh << 'AUTOENTER'
+# Auto-enter nix develop for vibed-nix project
+if [ -z "$IN_NIX_SHELL" ] && [ "$PWD" = "/home/user/vibed-nix" ]; then
+    # Only auto-enter if nix command is available
+    if command -v nix &> /dev/null; then
+        echo "Entering nix develop environment..."
+        exec nix develop
+    fi
+fi
+AUTOENTER
+
+# Add to bashrc if not already present
+if [ -f ~/.bashrc ]; then
+    if ! grep -q "nix-auto-enter.sh" ~/.bashrc; then
+        echo "" >> ~/.bashrc
+        echo "# Auto-enter nix develop for vibed-nix" >> ~/.bashrc
+        echo "source ~/.config/claude-code/nix-auto-enter.sh 2>/dev/null || true" >> ~/.bashrc
+    fi
+else
+    cat > ~/.bashrc << 'BASHRC'
+# Auto-enter nix develop for vibed-nix
+source ~/.config/claude-code/nix-auto-enter.sh 2>/dev/null || true
+BASHRC
+fi
+
+echo "✓ Nix is available and will auto-enter development shell!"
 exit 0
