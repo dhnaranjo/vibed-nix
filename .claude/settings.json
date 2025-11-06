@@ -5,15 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'cd /home/user/vibed-nix && ./install-nix.sh && NIX_BIN=$(find /nix/store -path \"*/nix-*/bin\" -type d | sort -r | head -1) && if [ -d \"$NIX_BIN\" ]; then echo \"export PATH=\\\"$NIX_BIN:\\$PATH\\\"\" >> \"$CLAUDE_ENV_FILE\" && echo \"export NIX_CONF_DIR=\\$HOME/.config/nix\" >> \"$CLAUDE_ENV_FILE\"; fi'"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cd /home/user/vibed-nix && NIX_BIN=$(find /nix/store -path \"*/nix-*/bin\" -type d | sort -r | head -1) && if [ -d \"$NIX_BIN\" ]; then export PATH=\"$NIX_BIN:$PATH\" && export NIX_CONF_DIR=$HOME/.config/nix && $NIX_BIN/nix develop /home/user/vibed-nix --command bash -c \"env\" | grep -E \"^(PATH|.*NIX.*|.*SHELL.*)=\" | while IFS= read -r line; do echo \"export $line\" >> \"$CLAUDE_ENV_FILE\"; done; fi'"
+            "command": "bash /home/user/vibed-nix/.claude/hooks/sessionStart.sh"
           }
         ]
       }
